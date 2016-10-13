@@ -2,15 +2,45 @@ import List
 
 type Declension = FirstDeclension
 
-vMarkers subject =
-    case subject.person of
-        ThirdPerson
+type Person = FirstPerson | SecondPerson | ThirdPerson
+
+type Screeve = Present
+
+type Series = PresentSeries | FutureSeries | AoristSeries | PerfectSeries
+
+series : Screeve -> Series
+
+series Present = PresentSeries
+
+type alias Verb = {
+    preverb: string,
+    root: string,
+    suffix: string
+}
+
+vMarkers personnumber =
+    let
+        prefix = case personnumber.person of
+            FirstPerson -> "ვ"
+            _ -> ""
+        postfix = if personnumber.plural && personnumber.person != ThirdPerson then "" else "თ" 
+    in
+        (prefix, postfix)
+
+screeveMarker screeve subject = 
+    let def, sing3, pl3 = case screeve of
+        Present -> ("", "ს", "ენ")
+    in 
+        case subject.person, subject.plural of
+            (ThirdPerson, false) -> sing3
+            (ThirdPerson, true) -> pl3
+            _ -> def
         
 
 normalPersonMarkers : Screeve -> PersonNumber -> Verb
 normalPersonMarkers screeve subject verb =
-    if member
-        |> screeve series
+    if member 
+        |> series screeve
         |> [PresentSeries]
     then
         vMarkers subject
@@ -34,5 +64,6 @@ decline screeve subject verb =
         version verb +
         root screeve verb +
         suffix screeve verb +
+        screeveMarker screeve subject +
         sfxp +
         plural
